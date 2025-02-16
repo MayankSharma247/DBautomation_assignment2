@@ -6,16 +6,18 @@ on:
       - main
 
 jobs:
-  deploy:
+  run-script:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Print environment variables for debugging
-        run: echo "DB_HOST=${{ variables.DB_HOST }}, DB_USER=${{ secrets.DB_USER }}, DB_NAME=${{ secrets.DB_NAME }}"
-      - name: Debug GitHub Secrets and Variables2
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Debug GitHub Secrets and Variables
         env:
           DB_HOST: ${{ vars.DB_HOST }}
           DB_USER: ${{ vars.DB_USER }}
@@ -24,29 +26,12 @@ jobs:
           echo "DB_HOST=${DB_HOST}"
           echo "DB_USER=${DB_USER}"
           echo "DB_NAME=${DB_NAME}"
-      - name: Debug GitHub Secrets
+
+      - name: Run Python script with environment variables
         env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-        run: |
-          echo "DB_HOST=${DB_HOST}"
-          echo "DB_USER=${DB_USER}"
-          echo "DB_NAME=${DB_NAME}"
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install MySQL Connector
-        run: pip install mysql-connector-python
-
-      - name: Apply Database Changes
-        env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_USER: ${{ vars.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-        run: |
-          python execute_sql.py
+          DB_NAME: ${{ vars.DB_NAME }}
+        run: python execute_sql.py
+
