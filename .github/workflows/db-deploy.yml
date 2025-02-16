@@ -17,15 +17,10 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Debug GitHub Secrets and Variables
-        env:
-          DB_HOST: ${{ vars.DB_HOST }}
-          DB_USER: ${{ vars.DB_USER }}
-          DB_NAME: ${{ vars.DB_NAME }}
+      - name: Install Dependencies
         run: |
-          echo "DB_HOST=${DB_HOST}"
-          echo "DB_USER=${DB_USER}"
-          echo "DB_NAME=${DB_NAME}"
+          python -m pip install --upgrade pip
+          pip install mysql-connector-python
 
       - name: Run Python script with environment variables
         env:
@@ -34,4 +29,5 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ vars.DB_NAME }}
         run: python execute_sql.py
+
 
