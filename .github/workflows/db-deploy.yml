@@ -28,4 +28,4 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
         run: |
-          python apply_schema_changes.py
+          python schema_changes.py
