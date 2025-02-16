@@ -13,6 +13,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Debug Environment Variables
+        run: echo "DB_HOST=$DB_HOST, DB_USER=$DB_USER, DB_NAME=$DB_NAME"
+        env:
+            DB_HOST: ${{ secrets.DB_HOST }}
+            DB_USER: ${{ secrets.DB_USER }}
+            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            DB_NAME: ${{ secrets.DB_NAME }}
+
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
