@@ -6,14 +6,4 @@ CREATE TABLE IF NOT EXISTS projects (
     end_date DATE
 );
 
--- Check if the 'budget' column exists in the 'projects' table
-SET @col_exists = (SELECT COUNT(*) 
-                   FROM INFORMATION_SCHEMA.COLUMNS 
-                   WHERE TABLE_NAME = 'projects' 
-                   AND COLUMN_NAME = 'budget'
-                   AND TABLE_SCHEMA = DATABASE());  -- Ensure you're checking the correct database
-
--- If the 'budget' column doesn't exist, add it
-IF @col_exists = 0 THEN
-    ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);
-END IF;
+-- This will be handled in Python, so no need for the column check here.
