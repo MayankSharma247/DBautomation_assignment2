@@ -33,7 +33,7 @@ def execute_sql_script():
 
             # Execute the script that creates the table
             cursor.execute(sql_script)
-            # Fetch any result to ensure cursor is consumed
+            # Ensure cursor is fully consumed before proceeding
             if cursor.with_rows:
                 cursor.fetchall()
 
@@ -52,7 +52,7 @@ def execute_sql_script():
             if result[0] == 0:
                 # Column does not exist, add it
                 cursor.execute("ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);")
-                # Fetch any result after altering the table
+                # Ensure the cursor is fully consumed after altering the table
                 if cursor.with_rows:
                     cursor.fetchall()
 
@@ -60,9 +60,8 @@ def execute_sql_script():
                 connection.commit()
                 print("✅ 'budget' column added to the 'projects' table.")
 
-            # Ensure that no commands are out of sync by fetching all results
-            if cursor.with_rows:
-                cursor.fetchall()
+            # Ensure that no commands are out of sync by advancing to the next result set
+            cursor.nextset()
 
             print("✅ Database schema changes applied successfully.")
 
