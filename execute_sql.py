@@ -9,7 +9,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 
 # SQL script file path
-SQL_SCRIPT_PATH = "schema_changes.sql"
+SQL_SCRIPT_PATH = "departments.sql"
 
 def execute_sql_script():
     """Executes the SQL script file to apply schema changes."""
