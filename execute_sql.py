@@ -25,18 +25,19 @@ def execute_sql_script():
         if connection.is_connected():
             print("✅ Connected to MySQL database.")
 
-            # Step 1: Create the table if it doesn't exist
+            cursor = connection.cursor()
+
+            # Step 1: Read and execute the SQL script
             with open(SQL_SCRIPT_PATH, 'r') as file:
                 sql_script = file.read()
 
-            cursor = connection.cursor()
-
             # Execute the script that creates the table
             cursor.execute(sql_script)
-            # Fetch any result (even if it's just for DDL statements, fetch them to avoid sync issues)
+            # Fetch any result to ensure cursor is consumed
             if cursor.with_rows:
                 cursor.fetchall()
 
+            # Commit after running the creation script
             connection.commit()
 
             # Step 2: Check if the 'budget' column exists in the 'projects' table
@@ -51,10 +52,15 @@ def execute_sql_script():
             if result[0] == 0:
                 # Column does not exist, add it
                 cursor.execute("ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);")
+                # Fetch any result after altering the table
+                if cursor.with_rows:
+                    cursor.fetchall()
+
+                # Commit after adding the column
                 connection.commit()
                 print("✅ 'budget' column added to the 'projects' table.")
-            
-            # Fetch results after ALTER TABLE to avoid any potential issues
+
+            # Ensure that no commands are out of sync by fetching all results
             if cursor.with_rows:
                 cursor.fetchall()
 
