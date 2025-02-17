@@ -25,44 +25,22 @@ def execute_sql_script():
         if connection.is_connected():
             print("✅ Connected to MySQL database.")
 
-            cursor = connection.cursor()
-
-            # Step 1: Read and execute the SQL script
+            # Read and execute SQL script
             with open(SQL_SCRIPT_PATH, 'r') as file:
                 sql_script = file.read()
 
-            # Execute the script that creates the table
-            cursor.execute(sql_script)
-            # Ensure cursor is fully consumed before proceeding
-            if cursor.with_rows:
-                cursor.fetchall()
+            cursor = connection.cursor()
 
-            # Commit after running the creation script
+            # Execute each SQL statement separately
+            for statement in sql_script.split(';'):
+                if statement.strip():  # Skip empty statements
+                    cursor.execute(statement)
+
+                    # ✅ Fix: Fetch results if a SELECT statement is executed
+                    if cursor.with_rows:
+                        cursor.fetchall()  # Ensures no unread results
+
             connection.commit()
-
-            # Step 2: Check if the 'budget' column exists in the 'projects' table
-            cursor.execute("""
-                SELECT COUNT(*) 
-                FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = 'projects' 
-                AND COLUMN_NAME = 'budget'
-                AND TABLE_SCHEMA = DATABASE();
-            """)
-            result = cursor.fetchone()
-            if result[0] == 0:
-                # Column does not exist, add it
-                cursor.execute("ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);")
-                # Ensure the cursor is fully consumed after altering the table
-                if cursor.with_rows:
-                    cursor.fetchall()
-
-                # Commit after adding the column
-                connection.commit()
-                print("✅ 'budget' column added to the 'projects' table.")
-
-            # Ensure that no commands are out of sync by advancing to the next result set
-            cursor.nextset()
-
             print("✅ Database schema changes applied successfully.")
 
     except Error as e:
