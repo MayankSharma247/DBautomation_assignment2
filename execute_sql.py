@@ -31,14 +31,8 @@ def execute_sql_script():
 
             cursor = connection.cursor()
 
-            # Execute each SQL statement separately
-            for statement in sql_script.split(';'):
-                if statement.strip():  # Skip empty statements
-                    cursor.execute(statement)
-
-                    # ✅ Fix: Fetch results if a SELECT statement is executed
-                    if cursor.with_rows:
-                        cursor.fetchall()  # Ensures no unread results
+            # Execute the entire SQL script
+            cursor.execute(sql_script)
 
             connection.commit()
             print("✅ Database schema changes applied successfully.")
@@ -46,11 +40,11 @@ def execute_sql_script():
     except Error as e:
         print(f"❌ Error while applying schema changes: {e}")
     finally:
-        # ✅ Ensure cursor is closed properly
+        # Ensure cursor is closed properly
         if 'cursor' in locals() and cursor:
             cursor.close()
 
-        # ✅ Ensure connection is closed properly
+        # Ensure connection is closed properly
         if 'connection' in locals() and connection.is_connected():
             connection.close()
             print("🔒 MySQL connection closed.")
