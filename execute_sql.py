@@ -45,10 +45,13 @@ def execute_sql_script():
             # Fetch the result of the column existence check
             result = cursor.fetchone()
 
-            # If the column doesn't exist (result[0] == 0), add the column
-            if result[0] == 0:
-                cursor.execute('ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2)')
+            # Ensure that the result is fetched
+            if result:
+                # If the column doesn't exist (result[0] == 0), add the column
+                if result[0] == 0:
+                    cursor.execute('ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2)')
 
+            # Commit the changes
             connection.commit()
             print("✅ Database schema changes applied successfully.")
 
