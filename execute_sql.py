@@ -31,8 +31,24 @@ def execute_sql_script():
 
             cursor = connection.cursor()
 
-            # Execute the entire SQL script
-            cursor.execute(sql_script)
+            # Execute the initial part of the SQL script (create table and check for column)
+            # Split the SQL script into statements to run separately
+            statements = sql_script.split(';')
+
+            # Run the first part (e.g., create table and column check)
+            for statement in statements:
+                if statement.strip():  # Skip empty statements
+                    cursor.execute(statement)
+
+                    # If it's a SELECT statement, fetch the result
+                    if cursor.with_rows:
+                        result = cursor.fetchall()  # Fetch results of SELECT query
+
+            # After checking the column existence, apply ALTER TABLE if necessary
+            # If the column does not exist, add it
+            if len(result) > 0 and result[0][0] == 0:  # Column doesn't exist
+                alter_statement = 'ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);'
+                cursor.execute(alter_statement)
 
             connection.commit()
             print("✅ Database schema changes applied successfully.")
