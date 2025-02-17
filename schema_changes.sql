@@ -6,21 +6,19 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 -- Declare variable
-SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
-                   WHERE TABLE_NAME = 'projects' AND COLUMN_NAME = 'budget');
+-- Declare a variable to check if the column exists
+SET @col_exists = (SELECT COUNT(*) 
+                   FROM INFORMATION_SCHEMA.COLUMNS 
+                   WHERE TABLE_NAME = 'projects' 
+                   AND COLUMN_NAME = 'budget');
 
--- Execute only if the column does not exist
-SELECT @col_exists;  -- Debugging: Check if column exists
-
--- Use a dynamic SQL block
-SET @sql = NULL;
+-- If the column doesn't exist, add it
 IF @col_exists = 0 THEN
-    SET @sql = 'ALTER TABLE projects ADD COLUMN budget DECIMAL(10,2);';
+    SET @sql = 'ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2)';
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-ELSE
-    SELECT 'Column budget already exists' AS message;
 END IF;
+
 
 
