@@ -2,7 +2,7 @@ import os
 import mysql.connector
 from mysql.connector import Error
 
-# Fetch database credentials from GitHub Actions environment variables
+# Fetch database credentials from environment variables
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -31,25 +31,16 @@ def execute_sql_script():
 
             cursor = connection.cursor()
 
-            # Execute the initial part of the SQL script (create table and column check)
+            # Split the script into individual statements and execute each
             statements = sql_script.split(';')
 
-            # Run the first part (create table)
             for statement in statements:
                 if statement.strip():  # Skip empty statements
                     cursor.execute(statement)
 
-            # Now, run the column existence check
-            cursor.execute('SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "projects" AND COLUMN_NAME = "budget"')
-
-            # Fetch the result of the column existence check
-            result = cursor.fetchone()
-
-            # Ensure that the result is fetched
-            if result:
-                # If the column doesn't exist (result[0] == 0), add the column
-                if result[0] == 0:
-                    cursor.execute('ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2)')
+                    # ✅ Fetch results for SELECT statements if any
+                    if cursor.with_rows:
+                        cursor.fetchall()  # Ensures no unread results
 
             # Commit the changes
             connection.commit()
