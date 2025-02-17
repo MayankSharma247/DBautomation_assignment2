@@ -25,22 +25,31 @@ def execute_sql_script():
         if connection.is_connected():
             print("✅ Connected to MySQL database.")
 
-            # Read and execute SQL script
+            # Step 1: Create the table if it doesn't exist
             with open(SQL_SCRIPT_PATH, 'r') as file:
                 sql_script = file.read()
 
             cursor = connection.cursor()
 
-            # Execute each SQL statement separately
-            for statement in sql_script.split(';'):
-                if statement.strip():  # Skip empty statements
-                    cursor.execute(statement)
-
-                    # ✅ Fix: Fetch results if a SELECT statement is executed
-                    if cursor.with_rows:
-                        cursor.fetchall()  # Ensures no unread results
-
+            # Execute the script that creates the table
+            cursor.execute(sql_script)
             connection.commit()
+
+            # Step 2: Check if the 'budget' column exists in the 'projects' table
+            cursor.execute("""
+                SELECT COUNT(*) 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_NAME = 'projects' 
+                AND COLUMN_NAME = 'budget'
+                AND TABLE_SCHEMA = DATABASE();
+            """)
+            result = cursor.fetchone()
+            if result[0] == 0:
+                # Column does not exist, add it
+                cursor.execute("ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);")
+                connection.commit()
+                print("✅ 'budget' column added to the 'projects' table.")
+
             print("✅ Database schema changes applied successfully.")
 
     except Error as e:
