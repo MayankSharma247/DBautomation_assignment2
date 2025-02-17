@@ -6,16 +6,14 @@ CREATE TABLE IF NOT EXISTS projects (
     end_date DATE
 );
 
--- Check if the column exists and add it if it doesn't
-SET @col_exists = (SELECT COUNT(*) 
-                   FROM INFORMATION_SCHEMA.COLUMNS 
-                   WHERE TABLE_NAME = 'projects' 
-                   AND COLUMN_NAME = 'budget');
+-- Check if the 'budget' column exists
+SELECT COUNT(*) 
+INTO @col_exists
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'projects' 
+AND COLUMN_NAME = 'budget';
 
 -- If the column doesn't exist, add it
 IF @col_exists = 0 THEN
-    SET @sql = 'ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2)';
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
+    ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);
 END IF;
