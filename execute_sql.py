@@ -13,9 +13,6 @@ SQL_SCRIPT_PATH = "schema_changes.sql"
 
 def execute_sql_script():
     """Executes the SQL script file to apply schema changes."""
-    connection = None  # Ensure connection is defined before usage
-    cursor = None
-
     try:
         # Connect to MySQL database
         connection = mysql.connector.connect(
@@ -33,9 +30,15 @@ def execute_sql_script():
                 sql_script = file.read()
 
             cursor = connection.cursor()
+
+            # Execute each SQL statement separately
             for statement in sql_script.split(';'):
                 if statement.strip():  # Skip empty statements
                     cursor.execute(statement)
+
+                    # ✅ Fix: Fetch results if a SELECT statement is executed
+                    if cursor.with_rows:
+                        cursor.fetchall()  # Ensures no unread results
 
             connection.commit()
             print("✅ Database schema changes applied successfully.")
@@ -43,11 +46,14 @@ def execute_sql_script():
     except Error as e:
         print(f"❌ Error while applying schema changes: {e}")
     finally:
-        if cursor:
+        # ✅ Ensure cursor is closed properly
+        if 'cursor' in locals() and cursor:
             cursor.close()
-        if connection and connection.is_connected():
+
+        # ✅ Ensure connection is closed properly
+        if 'connection' in locals() and connection.is_connected():
             connection.close()
-            print("🔌 MySQL connection closed.")
+            print("🔒 MySQL connection closed.")
 
 if __name__ == "__main__":
     execute_sql_script()
