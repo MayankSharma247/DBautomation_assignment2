@@ -1,4 +1,4 @@
--- Step 1: Create the table if it does not exist
+-- Create 'projects' table if it doesn't already exist
 CREATE TABLE IF NOT EXISTS projects (
     project_id INT AUTO_INCREMENT PRIMARY KEY,
     project_name VARCHAR(255) NOT NULL,
@@ -6,11 +6,13 @@ CREATE TABLE IF NOT EXISTS projects (
     end_date DATE
 );
 
--- Step 2: Check if the column exists using a SELECT query
-SELECT COUNT(*) 
-FROM INFORMATION_SCHEMA.COLUMNS 
-WHERE TABLE_NAME = 'projects' 
-AND COLUMN_NAME = 'budget';
+-- Check if 'budget' column exists in 'projects' table
+SET @col_exists = (SELECT COUNT(*) 
+                   FROM INFORMATION_SCHEMA.COLUMNS 
+                   WHERE TABLE_NAME = 'projects' 
+                   AND COLUMN_NAME = 'budget');
 
--- Step 3: If the column does not exist, run the ALTER TABLE
--- (This part should be executed in Python logic or as a stored procedure)
+-- If 'budget' column doesn't exist, add it
+IF @col_exists = 0 THEN
+    ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);
+END IF;
