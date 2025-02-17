@@ -33,6 +33,10 @@ def execute_sql_script():
 
             # Execute the script that creates the table
             cursor.execute(sql_script)
+            # Fetch any result (even if it's just for DDL statements, fetch them to avoid sync issues)
+            if cursor.with_rows:
+                cursor.fetchall()
+
             connection.commit()
 
             # Step 2: Check if the 'budget' column exists in the 'projects' table
@@ -49,6 +53,10 @@ def execute_sql_script():
                 cursor.execute("ALTER TABLE projects ADD COLUMN budget DECIMAL(10, 2);")
                 connection.commit()
                 print("✅ 'budget' column added to the 'projects' table.")
+            
+            # Fetch results after ALTER TABLE to avoid any potential issues
+            if cursor.with_rows:
+                cursor.fetchall()
 
             print("✅ Database schema changes applied successfully.")
 
